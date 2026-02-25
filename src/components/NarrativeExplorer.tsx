@@ -6,13 +6,20 @@ import { NarrativeWizard } from './NarrativeWizard';
 import { NarrativeComparison } from './NarrativeComparison';
 import { StoryExamples } from './StoryExamples';
 import { cn } from '../lib/utils';
-import { ChevronRight, Info, BookOpen, Map, Users, Network, Activity, Sparkles, LayoutGrid, Table2, Code, X, MessageSquare } from 'lucide-react';
+import { ChevronRight, Info, BookOpen, Map, Users, Network, Activity, Sparkles, LayoutGrid, Table2, Code, X, MessageSquare, Globe } from 'lucide-react';
 
 export default function NarrativeExplorer() {
   const [mode, setMode] = useState<'explore' | 'wizard' | 'compare'>('explore');
   const [selectedId, setSelectedId] = useState<string>(narratives[0].id);
   const [showEmbed, setShowEmbed] = useState(false);
+  const [embedUrl, setEmbedUrl] = useState('');
   const selectedModel = narratives.find(n => n.id === selectedId) || narratives[0];
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setEmbedUrl(window.location.origin);
+    }
+  }, []);
 
   const handleWizardComplete = (resultId: string) => {
     setSelectedId(resultId);
@@ -212,30 +219,45 @@ export default function NarrativeExplorer() {
           {showEmbed && (
             <motion.div 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
               onClick={() => setShowEmbed(false)}
             >
               <motion.div 
                 initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }}
-                className="bg-white rounded-2xl p-8 max-w-lg w-full shadow-2xl"
+                className="bg-white rounded-2xl p-8 max-w-lg w-full shadow-xl border border-slate-100"
                 onClick={e => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-serif font-medium">Embed this tool</h3>
-                  <button onClick={() => setShowEmbed(false)} className="text-stone-400 hover:text-stone-600">
+                  <h3 className="text-xl font-serif font-medium text-slate-900">Embed this tool</h3>
+                  <button onClick={() => setShowEmbed(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-                <p className="text-stone-500 mb-4 text-sm">
-                  Copy this code to embed this tool on your Squarespace site or any other website.
+                <p className="text-slate-500 mb-4 text-sm">
+                  Enter the URL where this tool is hosted, then copy the code below to embed it on your Squarespace site.
                 </p>
-                <div className="bg-stone-100 p-4 rounded-lg font-mono text-xs text-stone-600 break-all border border-stone-200">
-                  {`<iframe src="${window.location.origin}" width="100%" height="800" frameborder="0" style="border-radius: 12px; border: 1px solid #e5e5e5;"></iframe>`}
+                
+                <div className="mb-4 relative">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input 
+                    type="text" 
+                    value={embedUrl}
+                    onChange={(e) => setEmbedUrl(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                    placeholder="https://your-deployed-app.com"
+                  />
                 </div>
+
+                <div className="bg-slate-50 p-4 rounded-lg font-mono text-xs text-slate-600 break-all border border-slate-200 selection:bg-indigo-100 relative group mb-4">
+                  {`<iframe src="${embedUrl}" width="100%" height="1200" frameborder="0" style="border-radius: 12px; border: 1px solid #e2e8f0; display: block;"></iframe>`}
+                </div>
+                <p className="text-slate-400 text-xs italic">
+                  Tip: Adjust the <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600">height="1200"</code> value in the code above to fit your page perfectly.
+                </p>
                 <div className="mt-6 flex justify-end">
                   <button 
                     onClick={() => setShowEmbed(false)}
-                    className="px-4 py-2 bg-[#292524] text-white rounded-lg text-sm font-medium hover:bg-stone-800"
+                    className="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors"
                   >
                     Done
                   </button>
